@@ -3,7 +3,7 @@ import axios from "axios";
 import "./App.scss";
 
 // const backend_base_url = import.meta.env.VITE_BACKEND_URL;
-const backend_base_url = 'http://localhost:9000'
+const backend_base_url = "http://localhost:9000";
 
 function App() {
     const [jobSources, setJobSources] = useState([]);
@@ -23,9 +23,22 @@ function App() {
     };
 
     useEffect(() => {
-        if (userIsLoggedIn()) {
-            getJobSources();
-        }
+        (async () => {
+            const response = await fetch(backend_base_url + "/maintain-login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    authorization: "Bearer " + localStorage.getItem("token"),
+                },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setCurrentUser(data.user);
+                getJobSources();
+            } else {
+                setCurrentUser({});
+            }
+        })();
     }, []);
 
     const handleLoginButton = async (e) => {
@@ -35,16 +48,22 @@ function App() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),
         });
-        setUsername("");
-        setPassword("");
-        if (response    .ok) {
+        // setUsername("");
+        // setPassword("");
+        if (response.ok) {
             const data = await response.json();
-            console.log(data);
+            // console.log(data);
             getJobSources();
-            setCurrentUser(data.username);
+            setCurrentUser(data.user);
+            localStorage.setItem("token", data.token);
         } else {
             setMessage("Bad Login");
         }
+    };
+
+    const handleLogoutButton = () => {
+        localStorage.removeItem("token");
+        setCurrentUser({});
     };
 
     return (
@@ -58,6 +77,9 @@ function App() {
                             return <li key={i}>{jobSource.name}</li>;
                         })}
                     </ul>
+                    <button className="logout" onClick={handleLogoutButton}>
+                        Logout
+                    </button>
                 </>
             ) : (
                 <form className="login">
@@ -78,7 +100,7 @@ function App() {
                         />
                     </div>
                     <div className="row">
-                        <button type="button" onClick={handleLoginButton} >
+                        <button type="button" onClick={handleLoginButton}>
                             Login
                         </button>
                     </div>
