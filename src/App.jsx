@@ -13,7 +13,7 @@ function App() {
     const [message, setMessage] = useState("");
 
     const userIsLoggedIn = () => {
-        return Object.keys(currentUser).length > 0;
+        return currentUser.username !== 'anonymousUser'
     };
 
     const getJobSources = async () => {
@@ -36,7 +36,23 @@ function App() {
                 setCurrentUser(data.user);
                 getJobSources();
             } else {
-                setCurrentUser({});
+                const response = await fetch(backend_base_url + "/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        username:"anonymousUser",
+                        password: "anonymous123"
+                    })
+                })
+                if (response.ok) {
+                    const data = await response.json();
+                    getJobSources()
+                    setCurrentUser(data.user)
+                    localStorage.setItem("token", data.token)
+                } else {
+                    setMessage('Bad Login')
+                }
             }
         })();
     }, []);
@@ -53,8 +69,8 @@ function App() {
         if (response.ok) {
             const data = await response.json();
             // console.log(data);
-            getJobSources();
             setCurrentUser(data.user);
+            getJobSources();
             localStorage.setItem("token", data.token);
         } else {
             setMessage("Bad Login");
@@ -63,12 +79,19 @@ function App() {
 
     const handleLogoutButton = () => {
         localStorage.removeItem("token");
-        setCurrentUser({});
+        setCurrentUser({username: 'anonymousUser'});
     };
 
     return (
         <div className="App">
             <h2>MEZ Job Manager</h2>
+            <div className="loggedInfo">
+            {userIsLoggedIn() && (
+                <div>
+                    Logged in: {currentUser.firstName} {' '} {currentUser.lastName}
+                </div>
+            )}
+            </div>
             {userIsLoggedIn() ? (
                 <>
                     <p>There are {jobSources.length} job sources.</p>
@@ -97,6 +120,7 @@ function App() {
                             type="password"
                             onChange={(e) => setPassword(e.target.value)}
                             value={password}
+                            autoComplete="off"
                         />
                     </div>
                     <div className="row">

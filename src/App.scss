@@ -3,8 +3,18 @@ body {
   color: #fff;
   padding: 2rem;
   font-size: 1.4rem;
+
+  -webkit-animation: fadein .4s ease-in;
+  -moz-animation: fadein .4s ease-in;
+  -o-animation: fadein .4s ease-in;
+  animation: fadein .4s ease-in;
   h1{
     margin: 0;
   }
+}
+
+@keyframes fadein {
+  from {opacity: 0;}
+  to {opacity: 1}
 }
 
