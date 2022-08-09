@@ -16,6 +16,14 @@ function App() {
         return currentUser.username !== 'anonymousUser'
     };
 
+    const currentUserIsInAccessGroup = (accessGroup) => {
+        if (currentUser.accessGroups) {
+            return currentUser.accessGroups.includes(accessGroup)
+        } else {
+            return false
+        }
+    }
+
     const getJobSources = async () => {
         setJobSources(
             (await axios.get(backend_base_url + "/job-sources")).data
@@ -85,6 +93,7 @@ function App() {
     return (
         <div className="App">
             <h2>MEZ Job Manager</h2>
+
             <div className="loggedInfo">
             {userIsLoggedIn() && (
                 <div>
@@ -92,6 +101,16 @@ function App() {
                 </div>
             )}
             </div>
+
+            <div className="info">
+            {currentUserIsInAccessGroup('administrators') && (
+                <div>Info for administrators</div>
+            )}
+            {currentUserIsInAccessGroup('jobSeekers') && (
+                <div>new job infos for job seekers </div>
+            )}
+            </div>
+
             {userIsLoggedIn() ? (
                 <>
                     <p>There are {jobSources.length} job sources.</p>
