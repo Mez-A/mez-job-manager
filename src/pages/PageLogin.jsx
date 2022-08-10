@@ -1,39 +1,11 @@
+import {PageJobSources} from './PageJobSources'
 
 export const PageLogin = ({message, jobSources, userIsLoggedIn, currentUser, currentUserIsInAccessGroup, handleLogoutButton, handleLoginButton, username, password, setUsername, setPassword}) => {
     return (
         <>
             <p>This is the Login page.</p>
-            <div className="loggedInfo">
-                {userIsLoggedIn() && (
-                    <div>
-                        Logged in: {currentUser.firstName}{" "}
-                        {currentUser.lastName}
-                    </div>
-                )}
-            </div>
-
-            <div className="info">
-                {currentUserIsInAccessGroup("administrators") && (
-                    <div>Info for administrators</div>
-                )}
-                {currentUserIsInAccessGroup("jobSeekers") && (
-                    <div>new job infos for job seekers </div>
-                )}
-            </div>
-
-            {userIsLoggedIn() ? (
-                <>
-                    <p>There are {jobSources.length} job sources.</p>
-                    <ul>
-                        {jobSources.map((jobSource, i) => {
-                            return <li key={i}>{jobSource.name}</li>;
-                        })}
-                    </ul>
-                    <button className="logout" onClick={handleLogoutButton}>
-                        Logout
-                    </button>
-                </>
-            ) : (
+            
+            {!userIsLoggedIn() && (
                 <form className="login">
                     <div className="row">
                         username:

@@ -102,6 +102,14 @@ function App() {
     return (
         <div className="App">
             <h2>MEZ Job Manager</h2>
+            {userIsLoggedIn() && (
+                <div className="loggedInfo">
+                    {currentUser.firstName} {currentUser.lastName}{" "}
+                    <button className="logout" onClick={handleLogoutButton}>
+                        Logout
+                    </button>
+                </div>
+            )}
 
             <nav>
                 <NavLink to="/welcome">Welcome</NavLink>
@@ -114,7 +122,15 @@ function App() {
 
             <Routes>
                 <Route path="/welcome" element={<PageWelcome />} />
-                <Route path="/job-sources" element={<PageJobSources />} />
+                <Route
+                    path="/job-sources"
+                    element={
+                        <PageJobSources
+                            handleLogoutButton={handleLogoutButton}
+                            jobSources={jobSources}
+                        />
+                    }
+                />
                 <Route
                     path="/job-applications"
                     element={<PageJobApplications />}
