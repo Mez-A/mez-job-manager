@@ -11,6 +11,20 @@ body {
   h1{
     margin: 0;
   }
+  nav {
+    a {
+        color: #aaa;
+        text-decoration: none;
+    }
+    a:not(:last-of-type)::after {
+        color: #444;
+        content: ' | ';
+    }
+ 
+    a.active {
+        color: yellow;
+    }
+}
 }
 
 @keyframes fadein {

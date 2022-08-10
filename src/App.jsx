@@ -2,6 +2,14 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.scss";
 
+import { NavLink, Route, Routes } from "react-router-dom";
+import { PageWelcome } from "./pages/PageWelcome";
+import { PageJobSources } from "./pages/PageJobSources";
+import { PageJobApplications } from "./pages/PageJobApplications";
+import { PageCv } from "./pages/PageCv";
+import { PageLogin } from "./pages/PageLogin";
+import { PageRegister } from "./pages/PageRegister";
+
 // const backend_base_url = import.meta.env.VITE_BACKEND_URL;
 const backend_base_url = "http://localhost:9000";
 
@@ -13,16 +21,16 @@ function App() {
     const [message, setMessage] = useState("");
 
     const userIsLoggedIn = () => {
-        return currentUser.username !== 'anonymousUser'
+        return currentUser.username !== "anonymousUser";
     };
 
     const currentUserIsInAccessGroup = (accessGroup) => {
         if (currentUser.accessGroups) {
-            return currentUser.accessGroups.includes(accessGroup)
+            return currentUser.accessGroups.includes(accessGroup);
         } else {
-            return false
+            return false;
         }
-    }
+    };
 
     const getJobSources = async () => {
         setJobSources(
@@ -47,19 +55,20 @@ function App() {
                 const response = await fetch(backend_base_url + "/login", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"},
+                        "Content-Type": "application/json",
+                    },
                     body: JSON.stringify({
-                        username:"anonymousUser",
-                        password: "anonymous123"
-                    })
-                })
+                        username: "anonymousUser",
+                        password: "anonymous123",
+                    }),
+                });
                 if (response.ok) {
                     const data = await response.json();
-                    getJobSources()
-                    setCurrentUser(data.user)
-                    localStorage.setItem("token", data.token)
+                    getJobSources();
+                    setCurrentUser(data.user);
+                    localStorage.setItem("token", data.token);
                 } else {
-                    setMessage('Bad Login')
+                    setMessage("Bad Login");
                 }
             }
         })();
@@ -87,69 +96,52 @@ function App() {
 
     const handleLogoutButton = () => {
         localStorage.removeItem("token");
-        setCurrentUser({username: 'anonymousUser'});
+        setCurrentUser({ username: "anonymousUser" });
     };
 
     return (
         <div className="App">
             <h2>MEZ Job Manager</h2>
 
-            <div className="loggedInfo">
-            {userIsLoggedIn() && (
-                <div>
-                    Logged in: {currentUser.firstName} {' '} {currentUser.lastName}
-                </div>
-            )}
-            </div>
+            <nav>
+                <NavLink to="/welcome">Welcome</NavLink>
+                <NavLink to="/job-sources">Job Sources</NavLink>
+                <NavLink to="/job-applications">Job Applications</NavLink>
+                <NavLink to="/cv">CV</NavLink>
+                <NavLink to="/login">Login</NavLink>
+                <NavLink to="/register">Register</NavLink>
+            </nav>
 
-            <div className="info">
-            {currentUserIsInAccessGroup('administrators') && (
-                <div>Info for administrators</div>
-            )}
-            {currentUserIsInAccessGroup('jobSeekers') && (
-                <div>new job infos for job seekers </div>
-            )}
-            </div>
-
-            {userIsLoggedIn() ? (
-                <>
-                    <p>There are {jobSources.length} job sources.</p>
-                    <ul>
-                        {jobSources.map((jobSource, i) => {
-                            return <li key={i}>{jobSource.name}</li>;
-                        })}
-                    </ul>
-                    <button className="logout" onClick={handleLogoutButton}>
-                        Logout
-                    </button>
-                </>
-            ) : (
-                <form className="login">
-                    <div className="row">
-                        username:
-                        <input
-                            type="text"
-                            onChange={(e) => setUsername(e.target.value)}
-                            value={username}
+            <Routes>
+                <Route path="/welcome" element={<PageWelcome />} />
+                <Route path="/job-sources" element={<PageJobSources />} />
+                <Route
+                    path="/job-applications"
+                    element={<PageJobApplications />}
+                />
+                <Route path="/cv" element={<PageCv />} />
+                <Route
+                    path="/login"
+                    element={
+                        <PageLogin
+                            message={message}
+                            jobSources={jobSources}
+                            userIsLoggedIn={userIsLoggedIn}
+                            currentUser={currentUser}
+                            currentUserIsInAccessGroup={
+                                currentUserIsInAccessGroup
+                            }
+                            handleLogoutButton={handleLogoutButton}
+                            handleLoginButton={handleLoginButton}
+                            username={username}
+                            password={password}
+                            setUsername={setUsername}
+                            setPassword={setPassword}
                         />
-                    </div>
-                    <div className="row">
-                        password:
-                        <input
-                            type="password"
-                            onChange={(e) => setPassword(e.target.value)}
-                            value={password}
-                            autoComplete="off"
-                        />
-                    </div>
-                    <div className="row">
-                        <button type="button" onClick={handleLoginButton}>
-                            Login
-                        </button>
-                    </div>
-                    <div className="row">{message}</div>
-                </form>
-            )}
+                    }
+                />
+                <Route path="/register" element={<PageRegister />} />
+            </Routes>
         </div>
     );
 }
